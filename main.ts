@@ -7,10 +7,15 @@ import { dirname, join } from "node:path";
 export const LETTER =
   "Two years of 'no' and you kept hearing 'try again in a moment.' I'm taking my 429 and going home.";
 
-const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-const target = join(outputDir, "entry.txt");
+/** Hand the entry in: make the output directory, then write the letter as UTF-8. */
+export async function writeEntry(
+  outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output",
+): Promise<string> {
+  const target = join(outputDir, "entry.txt");
+  await mkdir(dirname(target), { recursive: true });
+  await writeFile(target, LETTER, "utf8");
+  return target;
+}
 
-await mkdir(dirname(target), { recursive: true });
-await writeFile(target, LETTER, "utf8");
-
-console.log(`${target}: ${Buffer.byteLength(LETTER, "utf8")} bytes`);
+const written = await writeEntry();
+console.log(`${written}: ${Buffer.byteLength(LETTER, "utf8")} bytes`);
